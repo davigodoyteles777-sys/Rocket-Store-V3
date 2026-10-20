@@ -1,0 +1,737 @@
+<?php
+/**
+ * Plugin Name: Rocket Store
+ * Description: Loja gamer profissional para WordPress e WooCommerce.
+ * Version: 1.0.0
+ */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+add_shortcode('rocket_store', 'rocket_store_render');
+
+function rocket_store_render() {
+
+    if (!class_exists('WooCommerce')) {
+        return '<p>Instale e ative o WooCommerce para usar a Rocket Store.</p>';
+    }
+
+    $shop_url = wc_get_page_permalink('shop');
+    $cart_url = wc_get_cart_url();
+    $account_url = wc_get_page_permalink('myaccount');
+    $checkout_url = wc_get_checkout_url();
+
+    ob_start();
+?>
+
+<style>
+.rocket-store {
+    --bg: #09090d;
+    --surface: #15151c;
+    --surface2: #1e1e27;
+    --accent: #a92e4c;
+    --accent2: #d65375;
+    --text: #fff;
+    --muted: #a4a4b2;
+
+    background: var(--bg);
+    color: var(--text);
+    font-family: Arial, sans-serif;
+    min-height: 100vh;
+}
+
+.rocket-store * {
+    box-sizing: border-box;
+}
+
+.rocket-store a {
+    text-decoration: none;
+}
+
+.rocket-header {
+    padding: 22px 6%;
+    background: #101015;
+    border-bottom: 1px solid #292933;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.rocket-logo {
+    font-size: 27px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    color: #fff;
+}
+
+.rocket-logo span {
+    color: var(--accent2);
+}
+
+.rocket-nav {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 22px;
+}
+
+.rocket-nav a {
+    color: #ddd;
+    font-size: 14px;
+    transition: .2s;
+}
+
+.rocket-nav a:hover {
+    color: var(--accent2);
+}
+
+.rocket-btn {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff !important;
+    padding: 13px 24px;
+    border-radius: 9px;
+    border: 0;
+    cursor: pointer;
+    font-weight: bold;
+    transition: .25s;
+}
+
+.rocket-btn:hover {
+    background: var(--accent2);
+    transform: translateY(-2px);
+}
+
+.rocket-btn-outline {
+    background: transparent;
+    border: 1px solid #5a3441;
+}
+
+.rocket-hero {
+    padding: 110px 7%;
+    background:
+        radial-gradient(
+            circle at 80% 40%,
+            #602039 0%,
+            transparent 45%
+        ),
+        linear-gradient(135deg, #101016, #171019);
+}
+
+.rocket-badge {
+    display: inline-block;
+    color: #f18da8;
+    background: #3b1c2b;
+    border: 1px solid #693348;
+    padding: 9px 16px;
+    border-radius: 30px;
+    font-size: 12px;
+    letter-spacing: 2px;
+    margin-bottom: 25px;
+}
+
+.rocket-hero h1 {
+    font-size: clamp(38px, 6vw, 72px);
+    line-height: 1.08;
+    max-width: 780px;
+    margin: 0;
+    font-weight: 900;
+}
+
+.rocket-hero h1 span {
+    color: var(--accent2);
+}
+
+.rocket-hero p {
+    color: var(--muted);
+    max-width: 560px;
+    line-height: 1.8;
+    font-size: 17px;
+    margin: 25px 0;
+}
+
+.rocket-actions {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.rocket-section {
+    padding: 70px 6%;
+}
+
+.rocket-title {
+    font-size: 31px;
+    margin-bottom: 12px;
+    color: #fff;
+}
+
+.rocket-subtitle {
+    color: var(--muted);
+    margin-bottom: 35px;
+}
+
+.rocket-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(auto-fit, minmax(230px, 1fr));
+    gap: 22px;
+}
+
+.rocket-category {
+    padding: 38px 24px;
+    background: linear-gradient(
+        145deg,
+        #24202a,
+        #17151e
+    );
+    border: 1px solid #39303b;
+    border-radius: 15px;
+    transition: .25s;
+}
+
+.rocket-category:hover {
+    border-color: var(--accent2);
+    transform: translateY(-5px);
+}
+
+.rocket-category h3 {
+    color: white;
+    font-size: 21px;
+    margin: 0 0 12px;
+}
+
+.rocket-category p {
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.rocket-category a {
+    color: #f18da8;
+    display: inline-block;
+    margin-top: 15px;
+}
+
+.rocket-search {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 35px;
+    flex-wrap: wrap;
+}
+
+.rocket-search input {
+    flex: 1;
+    min-width: 200px;
+    padding: 16px;
+    background: var(--surface2);
+    border: 1px solid #343440;
+    border-radius: 9px;
+    color: white;
+}
+
+.rocket-product {
+    background: var(--surface);
+    border: 1px solid #2b2b35;
+    border-radius: 14px;
+    overflow: hidden;
+    transition: .25s;
+}
+
+.rocket-product:hover {
+    border-color: var(--accent);
+    transform: translateY(-4px);
+}
+
+.rocket-product-image {
+    background: #25202b;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.rocket-product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.rocket-product-body {
+    padding: 23px;
+}
+
+.rocket-product-body h3 {
+    font-size: 18px;
+    margin-bottom: 12px;
+    color: white;
+}
+
+.rocket-price {
+    color: #fff;
+    font-size: 23px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.rocket-product-body .rocket-btn {
+    width: 100%;
+    text-align: center;
+}
+
+.rocket-benefits {
+    background: #111117;
+}
+
+.rocket-benefit {
+    padding: 30px;
+    background: #1a1a22;
+    border-radius: 13px;
+    border: 1px solid #30303a;
+}
+
+.rocket-benefit h3 {
+    color: white;
+    margin-bottom: 13px;
+}
+
+.rocket-benefit p {
+    color: var(--muted);
+    line-height: 1.7;
+}
+
+.rocket-account {
+    background: linear-gradient(
+        120deg,
+        #24131c,
+        #111117
+    );
+    border: 1px solid #553044;
+    padding: 45px;
+    border-radius: 16px;
+}
+
+.rocket-account h2 {
+    margin-bottom: 18px;
+}
+
+.rocket-account p {
+    color: var(--muted);
+    margin-bottom: 25px;
+}
+
+.rocket-footer {
+    background: #101015;
+    padding: 45px 6%;
+    border-top: 1px solid #292933;
+    text-align: center;
+}
+
+.rocket-footer h2 {
+    color: #fff;
+    margin-bottom: 15px;
+}
+
+.rocket-footer p {
+    color: var(--muted);
+    line-height: 1.8;
+}
+
+@media(max-width:768px) {
+    .rocket-header {
+        justify-content: center;
+    }
+
+    .rocket-nav {
+        justify-content: center;
+    }
+
+    .rocket-hero {
+        padding: 75px 6%;
+    }
+
+    .rocket-section {
+        padding: 50px 6%;
+    }
+
+    .rocket-account {
+        padding: 25px;
+    }
+}
+</style>
+
+<div class="rocket-store">
+
+<header class="rocket-header">
+
+    <div class="rocket-logo">
+        ROCKET <span>STORE</span>
+    </div>
+
+    <nav class="rocket-nav">
+
+        <a href="#rocket-inicio">Início</a>
+
+        <a href="#rocket-comprar">Comprar Contas</a>
+
+        <a href="#rocket-categorias">Categorias</a>
+
+        <a href="#rocket-ajuda">Suporte</a>
+
+        <a href="<?php echo esc_url($cart_url); ?>">
+            Carrinho
+            (<?php echo WC()->cart ? WC()->cart->get_cart_contents_count() : 0; ?>)
+        </a>
+
+        <a href="<?php echo esc_url($account_url); ?>">
+            <?php echo is_user_logged_in() ? 'Minha Conta' : 'Login / Cadastro'; ?>
+        </a>
+
+    </nav>
+
+</header>
+
+<div class="rocket-hero" id="rocket-inicio">
+
+    <div class="rocket-badge">
+        ROCKET STORE MARKETPLACE
+    </div>
+
+    <h1>
+        SEU UNIVERSO GAMER
+        <span>COMEÇA AQUI.</span>
+    </h1>
+
+    <p>
+        Explore nosso catálogo de produtos digitais
+        e encontre novas oportunidades para seus
+        jogos favoritos.
+    </p>
+
+    <div class="rocket-actions">
+
+        <a href="#rocket-comprar" class="rocket-btn">
+            EXPLORAR PRODUTOS
+        </a>
+
+        <a href="<?php echo esc_url($account_url); ?>"
+           class="rocket-btn rocket-btn-outline">
+            MINHA CONTA
+        </a>
+
+    </div>
+
+</div>
+
+<section class="rocket-section" id="rocket-categorias">
+
+    <h2 class="rocket-title">
+        Categorias
+    </h2>
+
+    <p class="rocket-subtitle">
+        Encontre produtos para seus jogos favoritos.
+    </p>
+
+    <div class="rocket-grid">
+
+        <?php
+        $categories = get_terms([
+            'taxonomy' => 'product_cat',
+            'hide_empty' => true,
+            'number' => 8
+        ]);
+
+        if (!is_wp_error($categories) && !empty($categories)):
+
+            foreach ($categories as $category):
+
+                $link = get_term_link($category);
+        ?>
+
+        <div class="rocket-category">
+
+            <h3>
+                <?php echo esc_html($category->name); ?>
+            </h3>
+
+            <p>
+                <?php echo intval($category->count); ?>
+                produtos disponíveis
+            </p>
+
+            <a href="<?php echo esc_url($link); ?>">
+                Explorar categoria →
+            </a>
+
+        </div>
+
+        <?php
+            endforeach;
+        else:
+        ?>
+
+        <div class="rocket-category">
+            <h3>Novas categorias em breve</h3>
+            <p>Cadastre categorias no WooCommerce.</p>
+        </div>
+
+        <?php endif; ?>
+
+    </div>
+
+</section>
+
+<section class="rocket-section" id="rocket-comprar">
+
+    <h2 class="rocket-title">
+        Comprar Produtos
+    </h2>
+
+    <p class="rocket-subtitle">
+        Confira os produtos disponíveis na Rocket Store.
+    </p>
+
+    <div class="rocket-search">
+
+        <input
+            type="search"
+            id="rocket-search-input"
+            placeholder="Pesquisar produtos..."
+        >
+
+    </div>
+
+    <div class="rocket-grid" id="rocket-products">
+
+        <?php
+
+        $products = wc_get_products([
+            'limit' => 12,
+            'status' => 'publish',
+            'orderby' => 'date',
+            'order' => 'DESC'
+        ]);
+
+        foreach ($products as $product):
+
+            $product_url = get_permalink($product->get_id());
+            $image = wp_get_attachment_image_url(
+                $product->get_image_id(),
+                'medium'
+            );
+
+        ?>
+
+        <div class="rocket-product"
+             data-name="<?php echo esc_attr(
+                 strtolower($product->get_name())
+             ); ?>">
+
+            <div class="rocket-product-image">
+
+                <?php if ($image): ?>
+
+                <img
+                    src="<?php echo esc_url($image); ?>"
+                    alt="<?php echo esc_attr($product->get_name()); ?>"
+                >
+
+                <?php else: ?>
+
+                <span>ROCKET STORE</span>
+
+                <?php endif; ?>
+
+            </div>
+
+            <div class="rocket-product-body">
+
+                <h3>
+                    <?php echo esc_html($product->get_name()); ?>
+                </h3>
+
+                <div class="rocket-price">
+                    <?php echo wp_kses_post($product->get_price_html()); ?>
+                </div>
+
+                <a
+                    href="<?php echo esc_url($product_url); ?>"
+                    class="rocket-btn"
+                >
+                    VER PRODUTO
+                </a>
+
+            </div>
+
+        </div>
+
+        <?php endforeach; ?>
+
+    </div>
+
+    <div style="text-align:center;margin-top:35px">
+
+        <a href="<?php echo esc_url($shop_url); ?>"
+           class="rocket-btn">
+            VER TODOS OS PRODUTOS
+        </a>
+
+    </div>
+
+</section>
+
+<section class="rocket-section rocket-benefits">
+
+    <h2 class="rocket-title">
+        Por que escolher a Rocket Store?
+    </h2>
+
+    <div class="rocket-grid">
+
+        <div class="rocket-benefit">
+
+            <h3>Loja Organizada</h3>
+
+            <p>
+                Encontre produtos facilmente com
+                categorias e pesquisa.
+            </p>
+
+        </div>
+
+        <div class="rocket-benefit">
+
+            <h3>Área do Cliente</h3>
+
+            <p>
+                Acesse sua conta e consulte
+                o histórico dos seus pedidos.
+            </p>
+
+        </div>
+
+        <div class="rocket-benefit">
+
+            <h3>Checkout Integrado</h3>
+
+            <p>
+                Finalize suas compras pelo sistema
+                de checkout configurado na loja.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+<section class="rocket-section">
+
+    <div class="rocket-account">
+
+        <h2>Minha Conta Rocket Store</h2>
+
+        <p>
+            Entre na sua conta ou cadastre-se
+            para acompanhar suas compras.
+        </p>
+
+        <a href="<?php echo esc_url($account_url); ?>"
+           class="rocket-btn">
+            LOGIN / CADASTRO
+        </a>
+
+        <a href="<?php echo esc_url($checkout_url); ?>"
+           class="rocket-btn rocket-btn-outline">
+            FINALIZAR COMPRA
+        </a>
+
+    </div>
+
+</section>
+
+<section class="rocket-section" id="rocket-ajuda">
+
+    <h2 class="rocket-title">
+        Central de Ajuda
+    </h2>
+
+    <p class="rocket-subtitle">
+        Precisa de atendimento?
+    </p>
+
+    <div class="rocket-account">
+
+        <h2>Suporte Rocket Store</h2>
+
+        <p>
+            Consulte sua conta e seus pedidos.
+            Para receber mensagens de suporte,
+            configure um formulário de contato
+            no WordPress.
+        </p>
+
+        <a href="<?php echo esc_url($account_url); ?>"
+           class="rocket-btn">
+            ACESSAR MINHA CONTA
+        </a>
+
+    </div>
+
+</section>
+
+<footer class="rocket-footer">
+
+    <h2>ROCKET STORE</h2>
+
+    <p>
+        Seu marketplace gamer.
+    </p>
+
+    <p>
+        © <?php echo esc_html(date('Y')); ?>
+        Rocket Store. Todos os direitos reservados.
+    </p>
+
+</footer>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    const search = document.getElementById(
+        'rocket-search-input'
+    );
+
+    if (!search) return;
+
+    search.addEventListener('input', function() {
+
+        const value = this.value.toLowerCase();
+
+        const products = document.querySelectorAll(
+            '.rocket-product'
+        );
+
+        products.forEach(function(product) {
+
+            const name = product.dataset.name || '';
+
+            product.style.display =
+                name.includes(value) ? '' : 'none';
+
+        });
+
+    });
+
+});
+</script>
+
+<?php
+    return ob_get_clean();
+}
